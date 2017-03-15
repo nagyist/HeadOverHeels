@@ -1,5 +1,6 @@
 
 #include "CreateVideoMenu.hpp"
+#include "CreateMenuOfGraphicSets.hpp"
 #include "GuiManager.hpp"
 #include "GameManager.hpp"
 #include "LanguageManager.hpp"
@@ -8,9 +9,8 @@
 #include "Label.hpp"
 #include "CreateMainMenu.hpp"
 
-#include <string>
-
-using gui::CreateVideoMenu;
+using gui::CreateVideoMenu ;
+using gui::CreateMenuOfGraphicSets ;
 
 
 CreateVideoMenu::CreateVideoMenu( BITMAP* picture ) :
@@ -28,8 +28,7 @@ void CreateVideoMenu::doIt ()
 
         CreateMainMenu::placeHeadAndHeels( screen, /* icons */ false, /* copyrights */ false );
 
-        std::string nameOfSet = "default";
-        const size_t positionOfSetting = 18;
+        const size_t positionOfSetting = 20;
 
         LanguageManager* languageManager = gui::GuiManager::getInstance()->getLanguageManager();
 
@@ -48,11 +47,8 @@ void CreateVideoMenu::doIt ()
         Label* labelDrawBackground = new Label( stringDrawBackgroundSpaced + ( isomot::GameManager::getInstance()->hasBackgroundPicture () ? "yes" : "no" ) );
 
         LanguageText* textGraphicSet = languageManager->findLanguageString( "graphic-set" );
-        std::string stringGraphicSetSpaced ( textGraphicSet->getText() );
-        for ( size_t position = stringGraphicSetSpaced.length() ; position < positionOfSetting ; ++position ) {
-                stringGraphicSetSpaced = stringGraphicSetSpaced + " ";
-        }
-        Label* labelGraphicSet = new Label( stringGraphicSetSpaced + nameOfSet );
+        Label* labelGraphicSet = new Label( textGraphicSet->getText(), "regular", "yellow" );
+        labelGraphicSet->setAction( new CreateMenuOfGraphicSets( this->where ) );
 
         Menu* menu = new Menu( textFullscreen->getX(), textFullscreen->getY() );
         menu->addActiveOption( labelFullscreen );
@@ -93,15 +89,14 @@ void CreateVideoMenu::doIt ()
                                         }
                                         else if ( menu->getActiveOption () == labelGraphicSet )
                                         {
+                                                std::string previousSet( isomot::GameManager::getInstance()->getChosenGraphicSet() );
+
                                                 // well it’s still something TO DO ...
-                                                // now just paint it yellow or cyan
-                                                if ( theKey == KEY_LEFT )
-                                                {
-                                                        labelGraphicSet->changeFontAndColor( labelGraphicSet->getFontName (), "yellow" );
-                                                }
-                                                else if ( theKey == KEY_RIGHT )
-                                                {
-                                                        labelGraphicSet->changeFontAndColor( labelGraphicSet->getFontName (), "cyan" );
+
+                                                if ( previousSet.compare( isomot::GameManager::getInstance()->getChosenGraphicSet() ) != 0 )
+                                                { // new set is not the same as previous one
+                                                        gui::GuiManager::getInstance()->reloadImages ();
+                                                        sleep( 100 );
                                                 }
 
                                                 doneWithKey = true;

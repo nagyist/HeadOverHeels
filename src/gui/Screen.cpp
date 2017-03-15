@@ -52,6 +52,7 @@ void Screen::handleKey( int rawKey )
 
         if ( escapeAction != 0 && theKey == KEY_ESC )
         {
+                fprintf( stdout, "doing escape action %s\n", ( escapeAction != 0 ? escapeAction->getNameOfAction() : "nope" ) );
                 this->escapeAction->doIt ();
         }
         else
@@ -67,8 +68,7 @@ void Screen::addWidget( Widget* widget )
 
 void Screen::setEscapeAction ( Action* action )
 {
-	escapeAction = action ;
-	fprintf( stdout, "escape action is %s\n", ( action != 0 ? action->getNameOfAction() : "nope" ) );
+        escapeAction = action ;
 }
 
 }

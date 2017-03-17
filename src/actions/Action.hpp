@@ -25,6 +25,8 @@ public:
 
         virtual void doIt () = 0 ;
 
+        virtual const char * getNameOfAction () = 0 ;
+
 };
 
 class DoNothing : public Action

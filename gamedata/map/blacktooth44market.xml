@@ -56,7 +56,6 @@
     <items>
         <item x="6" y="2" z="-1">
             <kind>market-door-south</kind>
-            <where>south</where>
             <class>door</class>
         </item>
     </items>

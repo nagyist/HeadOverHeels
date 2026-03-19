@@ -61,7 +61,6 @@
         </item>
         <item x="0" y="9" z="-1">
             <kind>byblos-door-west</kind>
-            <where>west</where>
             <class>door</class>
         </item>
     </items>

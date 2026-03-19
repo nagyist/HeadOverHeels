@@ -40,12 +40,10 @@
     <items>
         <item x="0" y="3" z="-1">
             <kind>market-door-north</kind>
-            <where>north</where>
             <class>door</class>
         </item>
         <item x="1" y="8" z="-1">
             <kind>market-door-west</kind>
-            <where>west</where>
             <class>door</class>
         </item>
     </items>

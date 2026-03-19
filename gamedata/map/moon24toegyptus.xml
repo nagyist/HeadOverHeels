@@ -200,7 +200,6 @@
         </item>
         <item x="3" y="8" z="-1">
             <kind>moon-door-west</kind>
-            <where>west</where>
             <class>door</class>
         </item>
     </items>

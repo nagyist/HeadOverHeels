@@ -82,7 +82,6 @@
         </item>
         <item x="2" y="7" z="-1">
             <kind>market-door-west</kind>
-            <where>west</where>
             <class>door</class>
         </item>
     </items>

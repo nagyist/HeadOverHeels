@@ -76,10 +76,6 @@ Room* RoomMaker::makeRoom ( const std::string & roomName )
                         item != nilPointer ;
                         item = item->NextSiblingElement( "item" ) )
         {
-                int itemCellX = std::atoi( item->Attribute( "x" ) );
-                int itemCellY = std::atoi( item->Attribute( "y" ) );
-                int itemCellZ = std::atoi( item->Attribute( "z" ) );
-
                 tinyxml2::XMLElement* itemClass = item->FirstChildElement( "class" );
                 assert( itemClass != nilPointer );
                 std::string whichClass = itemClass->FirstChild()->ToText()->Value() ;
@@ -91,11 +87,15 @@ Room* RoomMaker::makeRoom ( const std::string & roomName )
                         if ( door != nilPointer )
                                 theRoom->addDoor( door );
                         else
-                                std::cout << "oops, can’t make a door at cell cx=" << itemCellX << " cy=" << itemCellY << " cz=" << itemCellZ << std::endl ;
+                                std::cout << "oops, can’t make door " << item->FirstChildElement( "kind" )->FirstChild()->ToText()->Value() << std::endl ;
                 }
                 else if ( whichClass == "griditem" ) // is it a grid item
                 {
-                        std::string kind = item->FirstChildElement( "kind" )->FirstChild()->ToText()->Value();
+                        int itemCellX = std::atoi( item->Attribute( "x" ) );
+                        int itemCellY = std::atoi( item->Attribute( "y" ) );
+                        int itemCellZ = std::atoi( item->Attribute( "z" ) );
+
+                        std::string kind = item->FirstChildElement( "kind" )->FirstChild()->ToText()->Value() ;
 
                         bool wallAlongX = false ;
                         bool wallAlongY = false ;
@@ -132,7 +132,7 @@ Room* RoomMaker::makeRoom ( const std::string & roomName )
                         if ( freeItem != nilPointer )
                                 theRoom->addFreeItem( freeItem );
                         else // there may be a bonus item already taken and thus absent
-                                std::cout << "free item at cell cx=" << itemCellX << " cy=" << itemCellY << " cz=" << itemCellZ
+                                std::cout << "free item " << item->FirstChildElement( "kind" )->FirstChild()->ToText()->Value()
                                                 << " is absent" << std::endl ;
                 }
         }
@@ -586,26 +586,26 @@ FreeItemPtr RoomMaker::makeFreeItem( tinyxml2::XMLElement* item, const Room & ro
 /* static */
 Door* RoomMaker::makeDoor( tinyxml2::XMLElement* item )
 {
-        std::string kind = item->FirstChildElement( "kind" )->FirstChild()->ToText()->Value();
-
         int cellX = std::atoi( item->Attribute( "x" ) );
         int cellY = std::atoi( item->Attribute( "y" ) );
         int cellZ = std::atoi( item->Attribute( "z" ) );
 
-        // "z" can't be below the floor, that's less than Room::FloorZ = -1
-        int freeZ = ( cellZ > Room::FloorZ ) ? cellZ * Room::LayerHeight : Room::FloorZ ;
+        // elevation can’t be below the floor, that’s less than Room::FloorZ = -1
+        int elevation = ( cellZ > Room::FloorZ ) ? cellZ * Room::LayerHeight : Room::FloorZ ;
 
         // the door item’s kind is %scenery%-door-%on%
+        std::string kind = item->FirstChildElement( "kind" )->FirstChild()->ToText()->Value() ;
         size_t doorInKind = kind.find( "door-" );
-        IF_DEBUG( assert( doorInKind != std::string::npos ) )
+        if ( doorInKind == std::string::npos )
+                return nilPointer ;
 
-        std::string doorOn ;
-        if ( doorInKind != std::string::npos )
-                doorOn = kind.substr( doorInKind + 5 );
+        std::string doorOn = kind.substr( doorInKind + 5 );
 
+        // for a narrow room, both doors have the same kind for “non-in-wall” graphics
+        // for a triple room, the location of door is more specific
         tinyxml2::XMLElement* where = item->FirstChildElement( "where" );
         if ( where != nilPointer )
                 doorOn = where->FirstChild()->ToText()->Value() ;
 
-        return new Door( kind, cellX, cellY, freeZ, doorOn );
+        return new Door( kind, cellX, cellY, elevation, doorOn );
 }

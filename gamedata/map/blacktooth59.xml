@@ -144,17 +144,14 @@
         </item>
         <item x="4" y="0" z="-1">
             <kind>jail-door-east</kind>
-            <where>east</where>
             <class>door</class>
         </item>
         <item x="0" y="4" z="-1">
             <kind>jail-door-north</kind>
-            <where>north</where>
             <class>door</class>
         </item>
         <item x="4" y="9" z="-1">
             <kind>jail-door-west</kind>
-            <where>west</where>
             <class>door</class>
         </item>
     </items>

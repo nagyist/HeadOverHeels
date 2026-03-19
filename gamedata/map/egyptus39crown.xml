@@ -132,7 +132,6 @@
         </item>
         <item x="8" y="3" z="-1">
             <kind>egyptus-door-south</kind>
-            <where>south</where>
             <class>door</class>
         </item>
     </items>

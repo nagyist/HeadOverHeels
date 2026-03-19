@@ -72,7 +72,7 @@ std::string Way::toString () const
 /* static */
 std::string Way::exitToEntry ( const std::string & wayOfExit )
 {
-        switch ( Way( wayOfExit ).getIntegerOfWay () )
+        switch ( Way( wayOfExit ).toInteger() )
         {
                 case Northeast :
                 case Northwest :

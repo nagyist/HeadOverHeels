@@ -28,7 +28,7 @@ public:
 
         explicit Way( const std::string & stringOfWay ) ;
 
-        unsigned int getIntegerOfWay () const {  return way ;  }
+        unsigned int toInteger () const {  return way ;  }
 
         std::string toString () const ;
 

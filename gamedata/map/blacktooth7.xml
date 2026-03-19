@@ -37,12 +37,10 @@
         </item>
         <item x="0" y="4" z="-1">
             <kind>blacktooth-door-north</kind>
-            <where>north</where>
             <class>door</class>
         </item>
         <item x="1" y="9" z="-1">
             <kind>blacktooth-door-west</kind>
-            <where>west</where>
             <class>door</class>
         </item>
     </items>

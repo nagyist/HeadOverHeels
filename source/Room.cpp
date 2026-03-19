@@ -413,24 +413,28 @@ bool Room::saveAsXML( const std::string & file )
 
                 for ( std::map< std::string, Door* >::const_iterator di = doors.begin (); di != doors.end (); ++ di )
                 {
-                        Door* theDoor = di->second ;
-                        if ( theDoor != nilPointer )
+                        Door* doorPtr = di->second ;
+                        if ( doorPtr != nilPointer )
                         {
+                                const Door & door = *doorPtr ;
                                 tinyxml2::XMLElement* item = roomXml.NewElement( "item" );
 
-                                item->SetAttribute( "x", theDoor->getCellX() );
-                                item->SetAttribute( "y", theDoor->getCellY() );
-                                int z = theDoor->getZ();
+                                item->SetAttribute( "x", door.getCellX() );
+                                item->SetAttribute( "y", door.getCellY() );
+                                int z = door.getElevation() ;
                                 z = ( z > Room::FloorZ ) ? ( z / Room::LayerHeight ) : Room::FloorZ ;
                                 item->SetAttribute( "z", z );
 
                                 tinyxml2::XMLElement* kind = roomXml.NewElement( "kind" );
-                                kind->SetText( theDoor->getKind().c_str () );
+                                kind->SetText( door.getKind().c_str () );
                                 item->InsertEndChild( kind );
 
-                                tinyxml2::XMLElement* whereIsDoor = roomXml.NewElement( "where" );
-                                whereIsDoor->SetText( theDoor->getWhereIsDoor().c_str () );
-                                item->InsertEndChild( whereIsDoor );
+                                bool sideInKind = door.getKind().find( door.getRoomSide() ) != std::string::npos ;
+                                if ( isTripleRoom() || ! sideInKind ) {
+                                        tinyxml2::XMLElement* whereIsDoor = roomXml.NewElement( "where" );
+                                        whereIsDoor->SetText( door.getRoomSide().c_str () );
+                                        item->InsertEndChild( whereIsDoor );
+                                }
 
                                 tinyxml2::XMLElement* itemClass = roomXml.NewElement( "class" );
                                 itemClass->SetText( "door" );
@@ -478,7 +482,7 @@ void Room::addDoor( Door * door )
 
         door->setMediator( getMediator() );
 
-        this->doors[ door->getWhereIsDoor() ] = door;
+        this->doors[ door->getRoomSide() ] = door;
 
         // each door is actually three free items
         FreeItemPtr leftJamb = door->getLeftJamb() ;
@@ -1474,7 +1478,7 @@ bool Room::calculateEntryCoordinates( const std::string & way,
         unsigned int oneCellSize = getSizeOfOneCell ();
 
         // calculate coordinates by the way of entry
-        switch ( Way( way ).getIntegerOfWay () )
+        switch ( Way( way ).toInteger() )
         {
                 case Way::North:
                         *x = bounds[ way ] - oneCellSize + 1 ;

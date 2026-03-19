@@ -98,7 +98,6 @@
         </item>
         <item x="0" y="8" z="-1">
             <kind>egyptus-door-west</kind>
-            <where>west</where>
             <class>door</class>
         </item>
     </items>

@@ -88,12 +88,10 @@
         </item>
         <item x="3" y="0" z="-1">
             <kind>moon-door-east</kind>
-            <where>east</where>
             <class>door</class>
         </item>
         <item x="8" y="2" z="-1">
             <kind>moon-door-south</kind>
-            <where>south</where>
             <class>door</class>
         </item>
     </items>

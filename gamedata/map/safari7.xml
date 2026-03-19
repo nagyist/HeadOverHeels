@@ -122,12 +122,10 @@
         </item>
         <item x="7" y="2" z="-1">
             <kind>safari-door-south</kind>
-            <where>south</where>
             <class>door</class>
         </item>
         <item x="3" y="6" z="-1">
             <kind>safari-door-west</kind>
-            <where>west</where>
             <class>door</class>
         </item>
     </items>

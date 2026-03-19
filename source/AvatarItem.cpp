@@ -50,7 +50,7 @@ AvatarItem::AvatarItem( const AvatarItem & toCopy )
 {
         assert( getBehavior() != nilPointer );
 
-        switch ( Way( this->wayOfEntry ).getIntegerOfWay () )
+        switch ( Way( this->wayOfEntry ).toInteger() )
         {
                 case Way::North:
                 case Way::Northeast:
@@ -101,7 +101,7 @@ void AvatarItem::setWayOfExit ( const std::string & way )
 
         this->wayOfExit = way ;
 
-        switch ( Way( way ).getIntegerOfWay () )
+        switch ( Way( way ).toInteger() )
         {
                 case Way::North:
                 case Way::South:
@@ -314,7 +314,7 @@ bool AvatarItem::isWalkingThroughDoorAt( const std::string & where )
 
         const unsigned int oneCell = getMediator()->getRoom().getSizeOfOneCell() ;
 
-        switch ( Way( where ).getIntegerOfWay () )
+        switch ( Way( where ).toInteger() )
         {
                 case Way::North:
                         walksThruDoor = ( getX() < 0 );

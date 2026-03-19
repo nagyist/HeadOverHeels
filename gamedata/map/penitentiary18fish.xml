@@ -195,7 +195,6 @@
         </item>
         <item x="12" y="6" z="-1">
             <kind>penitentiary-door-west</kind>
-            <where>west</where>
             <class>door</class>
         </item>
     </items>

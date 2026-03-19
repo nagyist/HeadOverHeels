@@ -195,7 +195,6 @@
         </item>
         <item x="3" y="9" z="-1">
             <kind>market-door-west</kind>
-            <where>west</where>
             <class>door</class>
         </item>
     </items>

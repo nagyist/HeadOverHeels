@@ -172,12 +172,10 @@
         </item>
         <item x="0" y="2" z="-1">
             <kind>byblos-door-north</kind>
-            <where>north</where>
             <class>door</class>
         </item>
         <item x="17" y="2" z="-1">
             <kind>byblos-door-south</kind>
-            <where>south</where>
             <class>door</class>
         </item>
     </items>

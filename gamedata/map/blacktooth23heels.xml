@@ -239,7 +239,6 @@
         </item>
         <item x="0" y="3" z="-1">
             <kind>jail-door-north</kind>
-            <where>north</where>
             <class>door</class>
         </item>
     </items>

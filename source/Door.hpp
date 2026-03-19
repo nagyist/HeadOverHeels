@@ -34,23 +34,23 @@ public:
         * @param cx the door's cell on X
         * @param cy the door's cell on Y
         * @param z the position on Z, that's how far from the ground
-        * @param where is the door, in the north of the room, in the south, in the west or in the east
+        * @param on the side of the room where the door is
         */
-        Door( const std::string & kind, int cx, int cy, int z, const std::string & where ) ;
+        Door( const std::string & kind, int cx, int cy, int z, const std::string & on ) ;
 
-        virtual ~Door( ) ;
+        virtual ~Door( ) {}
 
-        const std::string & getWhereIsDoor () const {  return this->whereIsDoor ;  }
+        const std::string & getRoomSide () const {  return this->onWhichSide ;  }
 
         // useful for doors in big rooms
         std::string onWhichSideOfTheFour () const
         {
-                if ( this->whereIsDoor == "northeast" || this->whereIsDoor == "northwest" ) return "north" ;
-                if ( this->whereIsDoor == "southeast" || this->whereIsDoor == "southwest" ) return "south" ;
-                if ( this->whereIsDoor == "eastnorth" || this->whereIsDoor == "eastsouth" ) return "east" ;
-                if ( this->whereIsDoor == "westnorth" || this->whereIsDoor == "westsouth" ) return "west" ;
+                if ( this->onWhichSide == "northeast" || this->onWhichSide == "northwest" ) return "north" ;
+                if ( this->onWhichSide == "southeast" || this->onWhichSide == "southwest" ) return "south" ;
+                if ( this->onWhichSide == "eastnorth" || this->onWhichSide == "eastsouth" ) return "east" ;
+                if ( this->onWhichSide == "westnorth" || this->onWhichSide == "westsouth" ) return "west" ;
 
-                return this->whereIsDoor ;
+                return this->onWhichSide ;
         }
 
         const FreeItemPtr & getLeftJamb () ;
@@ -63,7 +63,7 @@ public:
 
         int getCellY () const {  return this->cellY ;  }
 
-        int getZ () const {  return this->theZ ;  }
+        int getElevation () const {  return this->elevation ;  }
 
         const std::string & getKind () const {  return this->kindOfDoor ;  }
 
@@ -76,30 +76,25 @@ public:
 
 private:
 
+        // the door item’s kind is %scenery%-door-%on%
         std::string kindOfDoor ;
 
+        // the room’s grid cell where this door is located
         int cellX ;
-
         int cellY ;
 
-        int theZ ;
+        // how far is this door from the ground
+        int elevation ;
 
-        std::string whereIsDoor ;
+        // on which side of the room is this door located
+        // for a single room, the sides are north, south, west or east
+        std::string onWhichSide ;
 
         int rightLimit ;
-
         int leftLimit ;
 
-        NamedPicture * leftJambImage ;
-
-        NamedPicture * rightJambImage ;
-
-        NamedPicture * lintelImage ;
-
         FreeItemPtr leftJamb ;
-
         FreeItemPtr rightJamb ;
-
         FreeItemPtr lintel ;
 
         /**

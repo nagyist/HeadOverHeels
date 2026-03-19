@@ -148,12 +148,10 @@
         </item>
         <item x="3" y="0" z="-1">
             <kind>penitentiary-door-east</kind>
-            <where>east</where>
             <class>door</class>
         </item>
         <item x="3" y="9" z="-1">
             <kind>penitentiary-door-west</kind>
-            <where>west</where>
             <class>door</class>
         </item>
     </items>

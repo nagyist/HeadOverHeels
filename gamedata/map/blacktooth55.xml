@@ -64,12 +64,10 @@
         </item>
         <item x="3" y="0" z="-1">
             <kind>jail-door-east</kind>
-            <where>east</where>
             <class>door</class>
         </item>
         <item x="8" y="3" z="-1">
             <kind>jail-door-south</kind>
-            <where>south</where>
             <class>door</class>
         </item>
     </items>

@@ -244,7 +244,7 @@ bool FreeItem::isCollidingWithJamb( const std::string & at, const std::string & 
         const int xBefore = getX();
         const int yBefore = getY();
 
-        switch ( Way( at ).getIntegerOfWay() )
+        switch ( Way( at ).toInteger() )
         {
                 // for rooms with the north or south door
                 case Way::North:

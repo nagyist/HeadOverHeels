@@ -133,7 +133,6 @@
         </item>
         <item x="0" y="2" z="-1">
             <kind>safari-door-north</kind>
-            <where>north</where>
             <class>door</class>
         </item>
     </items>

@@ -7,6 +7,7 @@
 #include "FreeItem.hpp"
 #include "Mediator.hpp"
 #include "GameManager.hpp"
+#include "PoolOfPictures.hpp"
 #include "UnlikelyToHappenException.hpp"
 
 #include "util.hpp"
@@ -18,80 +19,81 @@
 #endif
 
 
-Door::Door( const std::string & kind, int cx, int cy, int z, const std::string & where )
+Door::Door( const std::string & kind, int cx, int cy, int z, const std::string & on )
         : kindOfDoor( kind )
         , cellX( cx )
         , cellY( cy )
-        , theZ( z )
-        , whereIsDoor( where )
-        , leftJambImage( nilPointer )
-        , rightJambImage( nilPointer )
-        , lintelImage( nilPointer )
+        , elevation( z )
+        , onWhichSide( on )
         , leftJamb( nilPointer )
         , rightJamb( nilPointer )
         , lintel( nilPointer )
 {
-        const DescriptionOfItem & whatIsLintel = * ItemDescriptions::descriptions ().getDescriptionByKind( kindOfDoor + "~lintel" );
+        const DescriptionOfItem & whatIsLintel = * ItemDescriptions::descriptions().getDescriptionByKind( kindOfDoor + "~lintel" );
 
         // load the graphics of this door
 
-        const std::string & graphicsOfDoor = whatIsLintel.getNameOfFramesFile() ;
-        const std::string & chosenSet = GameManager::getInstance().getChosenGraphicsSet() ;
+        PoolOfPictures & imagePool = PoolOfPictures::getPoolOfPictures() ;
 
-        autouniqueptr< allegro::Pict > pictureOfDoor( allegro::Pict::fromPNGFile(
-                ospaths::pathToFile( ospaths::sharePath() + chosenSet, graphicsOfDoor )
-        ) );
-        if ( ! pictureOfDoor->isNotNil() ) {
-                std::string message = "the graphics of door \"" + graphicsOfDoor + "\"" + " from set \"" + chosenSet + "\" is absent" ;
+        const std::string & doorImageFile = whatIsLintel.getNameOfFramesFile() ;
+        const NamedPicturePtr & pictureOfDoor = imagePool.getOrLoadAndGet( doorImageFile );
+        if ( pictureOfDoor == nilPointer ) {
+                std::string message = "the door graphics \"" + doorImageFile + "\" is absent" ;
                 std::cerr << message << std::endl ;
                 throw UnlikelyToHappenException( message ) ;
         }
 
-        std::string scenery = kindOfDoor.substr( 0, kindOfDoor.find( "-" ) );
+        std::string ofDoor = " of " + doorImageFile ;
 
-        // cut out the left jamb
+        std::string lintelName = "lintel" + ofDoor ;
+        std::string leftJambName = "left jamb" + ofDoor ;
+        std::string rightJambName = "right jamb" + ofDoor ;
 
-        const DescriptionOfItem & whatIsLeftJamb = * ItemDescriptions::descriptions ().getDescriptionByKind( kindOfDoor + "~leftjamb" );
+        if ( imagePool.getPicture( leftJambName ) == nilPointer ) {
+                const DescriptionOfItem & whatIsLeftJamb = * ItemDescriptions::descriptions().getDescriptionByKind( kindOfDoor + "~leftjamb" );
 
-        leftJambImage = cutOutLeftJamb( *pictureOfDoor,
+                // cut out the left jamb
+                NamedPicture * leftJambCut = cutOutLeftJamb( pictureOfDoor->getAllegroPict(),
                                         whatIsLeftJamb.getWidthX(), whatIsLeftJamb.getWidthY(), whatIsLeftJamb.getHeight(),
                                         whatIsLintel.getWidthY(), whatIsLintel.getHeight(),
-                                        where );
-        leftJambImage->setName( "left jamb of door on " + scenery + " at " + where );
+                                        on );
 
-        // cut out the right jamb
+                imagePool.putPicture( leftJambName, NamedPicturePtr( leftJambCut ) );
+        }
 
-        const DescriptionOfItem & whatIsRightJamb = * ItemDescriptions::descriptions ().getDescriptionByKind( kindOfDoor + "~rightjamb" );
+        if ( imagePool.getPicture( rightJambName ) == nilPointer ) {
+                const DescriptionOfItem & whatIsRightJamb = * ItemDescriptions::descriptions().getDescriptionByKind( kindOfDoor + "~rightjamb" );
 
-        rightJambImage = cutOutRightJamb( *pictureOfDoor,
+                // cut out the right jamb
+                NamedPicture * rightJambCut = cutOutRightJamb( pictureOfDoor->getAllegroPict(),
                                         whatIsRightJamb.getWidthX(), whatIsRightJamb.getWidthY(), whatIsRightJamb.getHeight(),
                                         whatIsLintel.getWidthX(), whatIsLintel.getHeight(),
-                                        where );
-        rightJambImage->setName( "right jamb of door on " + scenery + " at " + where );
+                                        on );
 
-        // cut out the lintel
+                imagePool.putPicture( rightJambName, NamedPicturePtr( rightJambCut ) );
+        }
 
-        lintelImage = cutOutLintel( *pictureOfDoor,
+        if ( imagePool.getPicture( lintelName ) == nilPointer ) {
+                const DescriptionOfItem & whatIsLeftJamb = * ItemDescriptions::descriptions().getDescriptionByKind( kindOfDoor + "~leftjamb" );
+                const DescriptionOfItem & whatIsRightJamb = * ItemDescriptions::descriptions().getDescriptionByKind( kindOfDoor + "~rightjamb" );
+
+                // cut out the lintel
+                NamedPicture * lintelCut = cutOutLintel( pictureOfDoor->getAllegroPict(),
                                         whatIsLintel.getWidthX(), whatIsLintel.getWidthY(), whatIsLintel.getHeight(),
                                         whatIsLeftJamb.getWidthX(), whatIsLeftJamb.getWidthY(),
                                         whatIsRightJamb.getWidthX(), whatIsRightJamb.getWidthY(),
-                                        where );
-        lintelImage->setName( "lintel of door on " + scenery + " at " + where );
+                                        on );
+
+                imagePool.putPicture( lintelName, NamedPicturePtr( lintelCut ) );
+        }
 
 # if defined( SAVE_ITEM_FRAMES ) && SAVE_ITEM_FRAMES
 
-        leftJambImage->saveAsPNG( ospaths::homePath() );
-        rightJambImage->saveAsPNG( ospaths::homePath() );
-        lintelImage->saveAsPNG( ospaths::homePath() );
+        imagePool.getOrLoadAndGet( leftJambName )->saveAsPNG( ospaths::homePath() );
+        imagePool.getOrLoadAndGet( rightJambName )->saveAsPNG( ospaths::homePath() );
+        imagePool.getOrLoadAndGet( lintelName )->saveAsPNG( ospaths::homePath() );
 
 # endif
-}
-
-Door::~Door()
-{
-        delete this->leftJambImage ;
-        delete this->rightJambImage ;
-        delete this->lintelImage ;
 }
 
 /* static */
@@ -231,16 +233,18 @@ const FreeItemPtr & Door::getLeftJamb()
 {
         if ( this->leftJamb == nilPointer )
         {
-                if ( this->leftJambImage == nilPointer )
-                        throw UnlikelyToHappenException( "nil image for the left jamb of " + getKind() );
-
                 const DescriptionOfItem & whatIsLeftJamb = * ItemDescriptions::descriptions ().getDescriptionByKind( kindOfDoor + "~leftjamb" );
+                std::string leftJambName = "left jamb of " + whatIsLeftJamb.getNameOfFramesFile() ;
+                const NamedPicturePtr & leftJambImage = PoolOfPictures::getPoolOfPictures().getOrLoadAndGet( leftJambName );
+
+                if ( leftJambImage == nilPointer )
+                        throw UnlikelyToHappenException( "nil image for the left jamb of " + getKind() );
 
                 int oneCell = getMediator()->getRoom().getSizeOfOneCell ();
 
                 int x = 0 ; int y = 0 ;
 
-                switch ( Way( getWhereIsDoor() ).getIntegerOfWay() )
+                switch ( Way( getRoomSide() ).toInteger() )
                 {
                         case Way::North:
                         case Way::Northeast:
@@ -293,16 +297,18 @@ const FreeItemPtr & Door::getRightJamb()
 {
         if ( this->rightJamb == nilPointer )
         {
-                if ( this->rightJambImage == nilPointer )
+                const DescriptionOfItem & whatIsRightJamb = * ItemDescriptions::descriptions ().getDescriptionByKind( kindOfDoor + "~rightjamb" );
+                std::string rightJambName = "right jamb of " + whatIsRightJamb.getNameOfFramesFile() ;
+                const NamedPicturePtr & rightJambImage = PoolOfPictures::getPoolOfPictures().getOrLoadAndGet( rightJambName );
+
+                if ( rightJambImage == nilPointer )
                         throw UnlikelyToHappenException( "nil image for the right jamb of " + getKind() );
 
                 int oneCell = getMediator()->getRoom().getSizeOfOneCell ();
 
-                const DescriptionOfItem & whatIsRightJamb = * ItemDescriptions::descriptions ().getDescriptionByKind( kindOfDoor + "~rightjamb" );
-
                 int x = 0 ; int y = 0 ;
 
-                switch ( Way( getWhereIsDoor() ).getIntegerOfWay() )
+                switch ( Way( getRoomSide() ).toInteger() )
                 {
                         case Way::North:
                         case Way::Northeast:
@@ -355,16 +361,18 @@ const FreeItemPtr & Door::getLintel()
 {
         if ( this->lintel == nilPointer )
         {
-                if ( this->lintelImage == nilPointer )
+                const DescriptionOfItem & whatIsLintel = * ItemDescriptions::descriptions ().getDescriptionByKind( kindOfDoor + "~lintel" );
+                std::string lintelName = "lintel of " + whatIsLintel.getNameOfFramesFile() ;
+                const NamedPicturePtr & lintelImage = PoolOfPictures::getPoolOfPictures().getOrLoadAndGet( lintelName );
+
+                if ( lintelImage == nilPointer )
                         throw UnlikelyToHappenException( "nil image for the lintel of " + getKind() );
 
                 int oneCell = getMediator()->getRoom().getSizeOfOneCell ();
 
-                const DescriptionOfItem & whatIsLintel = * ItemDescriptions::descriptions ().getDescriptionByKind( kindOfDoor + "~lintel" );
-
                 int x( 0 ), y( 0 );
 
-                switch ( Way( getWhereIsDoor() ).getIntegerOfWay() )
+                switch ( Way( getRoomSide() ).toInteger() )
                 {
                         case Way::North:
                         case Way::Northeast:
@@ -417,7 +425,7 @@ bool Door::isUnderDoor( int x, int y, int z ) const
 
         const int oneCell = getMediator()->getRoom().getSizeOfOneCell ();
 
-        switch ( Way( getWhereIsDoor() ).getIntegerOfWay() )
+        switch ( Way( getRoomSide() ).toInteger() )
         {
                 case Way::North:
                 case Way::Northeast:

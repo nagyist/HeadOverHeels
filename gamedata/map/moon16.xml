@@ -168,12 +168,10 @@
         </item>
         <item x="12" y="2" z="-1">
             <kind>moon-door-south</kind>
-            <where>south</where>
             <class>door</class>
         </item>
         <item x="2" y="6" z="-1">
             <kind>moon-door-west</kind>
-            <where>west</where>
             <class>door</class>
         </item>
     </items>

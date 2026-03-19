@@ -165,7 +165,6 @@
         </item>
         <item x="0" y="17" z="-1">
             <kind>safari-door-west</kind>
-            <where>west</where>
             <class>door</class>
         </item>
     </items>

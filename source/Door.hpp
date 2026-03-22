@@ -103,21 +103,21 @@ private:
         static NamedPicture * cutOutLintel ( const allegro::Pict & door, unsigned int widthX, unsigned int widthY, unsigned int height,
                                                 unsigned int leftJambWidthX, unsigned int leftJambWidthY,
                                                 unsigned int rightJambWidthX, unsigned int rightJambWidthY,
-                                                const std::string& at ) ;
+                                                const std::string & on ) ;
 
         /**
          * Get the image of left jamb from the image of door
          */
         static NamedPicture * cutOutLeftJamb ( const allegro::Pict & door, unsigned int widthX, unsigned int widthY, unsigned int height,
                                                 /* unsigned int lintelWidthX, */ unsigned int lintelWidthY, unsigned int lintelHeight,
-                                                const std::string& at ) ;
+                                                const std::string & on ) ;
 
         /**
          * Get the image of right jamb from the image of door
          */
         static NamedPicture * cutOutRightJamb ( const allegro::Pict & door, unsigned int widthX, unsigned int widthY, unsigned int height,
                                                 unsigned int lintelWidthX, /* unsigned int lintelWidthY, */ unsigned int lintelHeight,
-                                                const std::string& at ) ;
+                                                const std::string & on ) ;
 
 } ;
 

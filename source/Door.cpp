@@ -29,80 +29,33 @@ Door::Door( const std::string & kind, int cx, int cy, int z, const std::string &
         , rightJamb( nilPointer )
         , lintel( nilPointer )
 {
-        const DescriptionOfItem & whatIsLintel = * ItemDescriptions::descriptions().getDescriptionByKind( kindOfDoor + "~lintel" );
+        // make sure the graphics of this door is loaded
 
-        // load the graphics of this door
+        const DescriptionOfItem * whatIsLintel = ItemDescriptions::descriptions().getDescriptionByKind( kind + "~lintel" );
 
-        PoolOfPictures & imagePool = PoolOfPictures::getPoolOfPictures() ;
+        if ( whatIsLintel == nilPointer ) {
+                std::string message = "no description for the parts of " + kind ;
+                std::cerr << message << std::endl ;
+                throw UnlikelyToHappenException( message ) ;
+        }
 
-        const std::string & doorImageFile = whatIsLintel.getNameOfFramesFile() ;
-        const NamedPicturePtr & pictureOfDoor = imagePool.getOrLoadAndGet( doorImageFile );
+        const std::string & doorImageFile = whatIsLintel->getNameOfFramesFile() ;
+        const NamedPicturePtr & pictureOfDoor = PoolOfPictures::getPoolOfPictures().getOrLoadAndGet( doorImageFile );
+
         if ( pictureOfDoor == nilPointer ) {
                 std::string message = "the door graphics \"" + doorImageFile + "\" is absent" ;
                 std::cerr << message << std::endl ;
                 throw UnlikelyToHappenException( message ) ;
         }
-
-        std::string ofDoor = " of " + doorImageFile ;
-
-        std::string lintelName = "lintel" + ofDoor ;
-        std::string leftJambName = "left jamb" + ofDoor ;
-        std::string rightJambName = "right jamb" + ofDoor ;
-
-        if ( imagePool.getPicture( leftJambName ) == nilPointer ) {
-                const DescriptionOfItem & whatIsLeftJamb = * ItemDescriptions::descriptions().getDescriptionByKind( kindOfDoor + "~leftjamb" );
-
-                // cut out the left jamb
-                NamedPicture * leftJambCut = cutOutLeftJamb( pictureOfDoor->getAllegroPict(),
-                                        whatIsLeftJamb.getWidthX(), whatIsLeftJamb.getWidthY(), whatIsLeftJamb.getHeight(),
-                                        whatIsLintel.getWidthY(), whatIsLintel.getHeight(),
-                                        on );
-
-                imagePool.putPicture( leftJambName, NamedPicturePtr( leftJambCut ) );
-        }
-
-        if ( imagePool.getPicture( rightJambName ) == nilPointer ) {
-                const DescriptionOfItem & whatIsRightJamb = * ItemDescriptions::descriptions().getDescriptionByKind( kindOfDoor + "~rightjamb" );
-
-                // cut out the right jamb
-                NamedPicture * rightJambCut = cutOutRightJamb( pictureOfDoor->getAllegroPict(),
-                                        whatIsRightJamb.getWidthX(), whatIsRightJamb.getWidthY(), whatIsRightJamb.getHeight(),
-                                        whatIsLintel.getWidthX(), whatIsLintel.getHeight(),
-                                        on );
-
-                imagePool.putPicture( rightJambName, NamedPicturePtr( rightJambCut ) );
-        }
-
-        if ( imagePool.getPicture( lintelName ) == nilPointer ) {
-                const DescriptionOfItem & whatIsLeftJamb = * ItemDescriptions::descriptions().getDescriptionByKind( kindOfDoor + "~leftjamb" );
-                const DescriptionOfItem & whatIsRightJamb = * ItemDescriptions::descriptions().getDescriptionByKind( kindOfDoor + "~rightjamb" );
-
-                // cut out the lintel
-                NamedPicture * lintelCut = cutOutLintel( pictureOfDoor->getAllegroPict(),
-                                        whatIsLintel.getWidthX(), whatIsLintel.getWidthY(), whatIsLintel.getHeight(),
-                                        whatIsLeftJamb.getWidthX(), whatIsLeftJamb.getWidthY(),
-                                        whatIsRightJamb.getWidthX(), whatIsRightJamb.getWidthY(),
-                                        on );
-
-                imagePool.putPicture( lintelName, NamedPicturePtr( lintelCut ) );
-        }
-
-# if defined( SAVE_ITEM_FRAMES ) && SAVE_ITEM_FRAMES
-
-        imagePool.getOrLoadAndGet( leftJambName )->saveAsPNG( ospaths::homePath() );
-        imagePool.getOrLoadAndGet( rightJambName )->saveAsPNG( ospaths::homePath() );
-        imagePool.getOrLoadAndGet( lintelName )->saveAsPNG( ospaths::homePath() );
-
-# endif
 }
 
 /* static */
 NamedPicture* Door::cutOutLintel( const allegro::Pict& door, unsigned int widthX, unsigned int widthY, unsigned int height,
                                         unsigned int leftJambWidthX, unsigned int leftJambWidthY,
                                         unsigned int rightJambWidthX, unsigned int rightJambWidthY,
-                                        const std::string& at )
+                                        const std::string & on )
 {
-        bool ns = ( at == "north" || at == "south" || at == "northeast" || at == "northwest" || at == "southeast" || at == "southwest" );
+        bool ns = ( on == "north" || on == "south" || on == "northeast" || on == "northwest" || on == "southeast" || on == "southwest" );
 
         unsigned int lintelWidth = ( widthX << 1 ) + ( widthY << 1 );
         unsigned int lintelHeight = height + widthY + widthX;
@@ -186,9 +139,9 @@ NamedPicture* Door::cutOutLintel( const allegro::Pict& door, unsigned int widthX
 /* static */
 NamedPicture* Door::cutOutLeftJamb( const allegro::Pict& door, unsigned int widthX, unsigned int widthY, unsigned int height,
                                         /* unsigned int lintelWidthX, */ unsigned int lintelWidthY, unsigned int lintelHeight,
-                                        const std::string& at )
+                                        const std::string & on )
 {
-        bool ns = ( at == "north" || at == "south" || at == "northeast" || at == "northwest" || at == "southeast" || at == "southwest" );
+        bool ns = ( on == "north" || on == "south" || on == "northeast" || on == "northwest" || on == "southeast" || on == "southwest" );
         unsigned int fixWidth = ( ns ? 7 : 0 );
         int fixY = ( ns ? -1 : 0 );
 
@@ -209,9 +162,9 @@ NamedPicture* Door::cutOutLeftJamb( const allegro::Pict& door, unsigned int widt
 /* static */
 NamedPicture* Door::cutOutRightJamb( const allegro::Pict& door, unsigned int widthX, unsigned int widthY, unsigned int height,
                                         unsigned int lintelWidthX, /* unsigned int lintelWidthY, */ unsigned int lintelHeight,
-                                        const std::string& at )
+                                        const std::string & on )
 {
-        bool ns = ( at == "north" || at == "south" || at == "northeast" || at == "northwest" || at == "southeast" || at == "southwest" );
+        bool ns = ( on == "north" || on == "south" || on == "northeast" || on == "northwest" || on == "southeast" || on == "southwest" );
         unsigned int fixWidth = ( ns ? 0 : 7 );
         int fixY = ( ns ? 0 : -2 );
 
@@ -233,10 +186,31 @@ const FreeItemPtr & Door::getLeftJamb()
 {
         if ( this->leftJamb == nilPointer )
         {
-                const DescriptionOfItem & whatIsLeftJamb = * ItemDescriptions::descriptions ().getDescriptionByKind( kindOfDoor + "~leftjamb" );
-                std::string leftJambName = "left jamb of " + whatIsLeftJamb.getNameOfFramesFile() ;
-                const NamedPicturePtr & leftJambImage = PoolOfPictures::getPoolOfPictures().getOrLoadAndGet( leftJambName );
+                ItemDescriptions & descriptions = ItemDescriptions::descriptions() ;
+                PoolOfPictures & imagePool = PoolOfPictures::getPoolOfPictures() ;
 
+                const DescriptionOfItem & whatIsLeftJamb = * descriptions.getDescriptionByKind( getKind() + "~leftjamb" );
+
+                const std::string & doorImageName = whatIsLeftJamb.getNameOfFramesFile() ;
+                std::string leftJambName = "left jamb of " + doorImageName ;
+
+                if ( imagePool.getPicture( leftJambName ) == nilPointer ) {
+                        const DescriptionOfItem & whatIsLintel = * descriptions.getDescriptionByKind( getKind() + "~lintel" );
+
+                        // cut out the left jamb
+                        NamedPicture * leftJambCut = cutOutLeftJamb( imagePool.getPicture( doorImageName )->getAllegroPict(),
+                                                whatIsLeftJamb.getWidthX(), whatIsLeftJamb.getWidthY(), whatIsLeftJamb.getHeight(),
+                                                whatIsLintel.getWidthY(), whatIsLintel.getHeight(),
+                                                getRoomSide() );
+
+                        imagePool.putPicture( leftJambName, NamedPicturePtr( leftJambCut ) );
+
+                # if defined( SAVE_ITEM_FRAMES ) && SAVE_ITEM_FRAMES
+                        imagePool.getPicture( leftJambName )->saveAsPNG( ospaths::homePath() );
+                # endif
+                }
+
+                const NamedPicturePtr & leftJambImage = imagePool.getPicture( leftJambName );
                 if ( leftJambImage == nilPointer )
                         throw UnlikelyToHappenException( "nil image for the left jamb of " + getKind() );
 
@@ -297,10 +271,31 @@ const FreeItemPtr & Door::getRightJamb()
 {
         if ( this->rightJamb == nilPointer )
         {
-                const DescriptionOfItem & whatIsRightJamb = * ItemDescriptions::descriptions ().getDescriptionByKind( kindOfDoor + "~rightjamb" );
-                std::string rightJambName = "right jamb of " + whatIsRightJamb.getNameOfFramesFile() ;
-                const NamedPicturePtr & rightJambImage = PoolOfPictures::getPoolOfPictures().getOrLoadAndGet( rightJambName );
+                ItemDescriptions & descriptions = ItemDescriptions::descriptions() ;
+                PoolOfPictures & imagePool = PoolOfPictures::getPoolOfPictures() ;
 
+                const DescriptionOfItem & whatIsRightJamb = * descriptions.getDescriptionByKind( getKind() + "~rightjamb" );
+
+                const std::string & doorImageName = whatIsRightJamb.getNameOfFramesFile() ;
+                std::string rightJambName = "right jamb of " + doorImageName ;
+
+                if ( imagePool.getPicture( rightJambName ) == nilPointer ) {
+                        const DescriptionOfItem & whatIsLintel = * descriptions.getDescriptionByKind( getKind() + "~lintel" );
+
+                        // cut out the right jamb
+                        NamedPicture * rightJambCut = cutOutRightJamb( imagePool.getPicture( doorImageName )->getAllegroPict(),
+                                                whatIsRightJamb.getWidthX(), whatIsRightJamb.getWidthY(), whatIsRightJamb.getHeight(),
+                                                whatIsLintel.getWidthX(), whatIsLintel.getHeight(),
+                                                getRoomSide() );
+
+                        imagePool.putPicture( rightJambName, NamedPicturePtr( rightJambCut ) );
+
+                # if defined( SAVE_ITEM_FRAMES ) && SAVE_ITEM_FRAMES
+                        imagePool.getPicture( rightJambName )->saveAsPNG( ospaths::homePath() );
+                # endif
+                }
+
+                const NamedPicturePtr & rightJambImage = imagePool.getOrLoadAndGet( rightJambName );
                 if ( rightJambImage == nilPointer )
                         throw UnlikelyToHappenException( "nil image for the right jamb of " + getKind() );
 
@@ -361,10 +356,33 @@ const FreeItemPtr & Door::getLintel()
 {
         if ( this->lintel == nilPointer )
         {
-                const DescriptionOfItem & whatIsLintel = * ItemDescriptions::descriptions ().getDescriptionByKind( kindOfDoor + "~lintel" );
-                std::string lintelName = "lintel of " + whatIsLintel.getNameOfFramesFile() ;
-                const NamedPicturePtr & lintelImage = PoolOfPictures::getPoolOfPictures().getOrLoadAndGet( lintelName );
+                ItemDescriptions & descriptions = ItemDescriptions::descriptions() ;
+                PoolOfPictures & imagePool = PoolOfPictures::getPoolOfPictures() ;
 
+                const DescriptionOfItem & whatIsLintel = * descriptions.getDescriptionByKind( getKind() + "~lintel" );
+
+                const std::string & doorImageName = whatIsLintel.getNameOfFramesFile() ;
+                std::string lintelName = "lintel of " + doorImageName ;
+
+                if ( imagePool.getPicture( lintelName ) == nilPointer ) {
+                        const DescriptionOfItem & whatIsLeftJamb = * descriptions.getDescriptionByKind( getKind() + "~leftjamb" );
+                        const DescriptionOfItem & whatIsRightJamb = * descriptions.getDescriptionByKind( getKind() + "~rightjamb" );
+
+                        // cut out the lintel
+                        NamedPicture * lintelCut = cutOutLintel( imagePool.getPicture( doorImageName )->getAllegroPict(),
+                                                whatIsLintel.getWidthX(), whatIsLintel.getWidthY(), whatIsLintel.getHeight(),
+                                                whatIsLeftJamb.getWidthX(), whatIsLeftJamb.getWidthY(),
+                                                whatIsRightJamb.getWidthX(), whatIsRightJamb.getWidthY(),
+                                                getRoomSide() );
+
+                        imagePool.putPicture( lintelName, NamedPicturePtr( lintelCut ) );
+
+                # if defined( SAVE_ITEM_FRAMES ) && SAVE_ITEM_FRAMES
+                        imagePool.getPicture( lintelName )->saveAsPNG( ospaths::homePath() );
+                # endif
+                }
+
+                const NamedPicturePtr & lintelImage = imagePool.getOrLoadAndGet( lintelName );
                 if ( lintelImage == nilPointer )
                         throw UnlikelyToHappenException( "nil image for the lintel of " + getKind() );
 
